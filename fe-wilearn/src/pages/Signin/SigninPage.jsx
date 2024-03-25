@@ -21,14 +21,15 @@ export default function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleLogin = () => {
     // Kiểm tra thông tin đăng nhập, ví dụ: nếu username và password là 'admin'
-    if (username === "user@gmail.com" && password === "123456") {
-      // Đăng nhập thành công, chuyển hướng đến trang Home
-      navigate("/home");
-    } else {
-      alert("Đăng nhập không thành công. Thử lại.");
-    }
+    // if (username === "user@gmail.com" && password === "123456") {
+    //   // Đăng nhập thành công, chuyển hướng đến trang Home
+    //   navigate("/home");
+    // } else {
+    //   alert("Đăng nhập không thành công. Thử lại.");
+    // }
   };
 
   const handleSubmit = (event) => {
