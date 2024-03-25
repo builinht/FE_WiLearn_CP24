@@ -107,7 +107,7 @@ export default function Router() {
                   element: <Members />,
                 },
                 {
-                  path: "",
+                  path: "members",
                   element: <Members />,
                 },
                 {

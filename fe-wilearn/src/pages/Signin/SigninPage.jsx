@@ -1,36 +1,48 @@
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Link,
+  Grid,
+  Box,
+  Typography,
+  Container,
+} from "@mui/material";
+
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
+
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
+import { useState } from "react";
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("kminchelle");
+  const [password, setPassword] = useState("0lelplR");
+  const [rememberMe, setRememberMe] = useState(false);
+
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  // const [data, error, isLoading] = useLoginMutation({ skip });
+
   const handleLogin = () => {
     // Kiểm tra thông tin đăng nhập, ví dụ: nếu username và password là 'admin'
-    // if (username === "user@gmail.com" && password === "123456") {
-    //   // Đăng nhập thành công, chuyển hướng đến trang Home
-    //   navigate("/home");
-    // } else {
-    //   alert("Đăng nhập không thành công. Thử lại.");
-    // }
+    if (username === "user@gmail.com" && password === "123456") {
+      // Đăng nhập thành công, chuyển hướng đến trang Home
+      navigate("/home");
+    } else {
+      alert("Đăng nhập không thành công. Thử lại.");
+    }
   };
+
+  // const loginRedux = () => {
+  //   console.log(data);
+  // };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -38,6 +50,7 @@ export default function SignIn() {
     console.log({
       email: data.get("email"),
       password: data.get("password"),
+      rememberMe: data.get("rememberMe"),
     });
   };
 
@@ -103,8 +116,13 @@ export default function SignIn() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2, backgroundImage: "linear-gradient(to left, #00b4db, #0083b0)" }}
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  backgroundImage: "linear-gradient(to left, #00b4db, #0083b0)",
+                }}
                 onClick={handleLogin}
+                // onClick={loginRedux}
               >
                 Sign In
               </Button>
