@@ -3,6 +3,7 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
+import * as Yup from 'yup';
 import { useState } from "react";
 import { Check as CheckIcon } from '@mui/icons-material';
 import {
@@ -13,6 +14,8 @@ import {
   Avatar,
   Input,
 } from "@mui/material";
+import { useFormik } from "formik";
+import { useDispatch, useSelector } from "react-redux";
 
 const defaultAvatar = "/src/assets/default.jpg";
 
@@ -20,46 +23,115 @@ export default function GroupSettings() {
   const [subject, setSubject] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [groupIntro, setGroupIntro] = useState("");
+  const dispatch = useDispatch();
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
   };
 
-  const subjects = ["React", "Python", "Java"];
-  
-  return (
-    <Grid container marginLeft={10} paddingTop={10}>
-      <Grid item xs={6}>
-        {/* title */}
-        <Typography variant="h5" textAlign={"center"}>
-          Update group
-        </Typography>
+  const validationSchema = Yup.object({
+    name: Yup.string().trim().required('Require information.'),
+    description: Yup.string().trim().required('Require information.'),
+    // subjectIds: Yup.array().min(1, 'Please select at least one subject')
+  });
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      description: '',
+      image: '',
+      subjects: [],
+    },
+    validationSchema,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      // if (groupInfo) {
+      //   const transformSbjIds = values.subjectIds.map((id) => parseInt(id));
+      //   const response = await dispatch(
+      //     updateGroupInfo({ ...values, subjectIds: transformSbjIds })
+      //   );
+      //   if (response.type === updateGroupInfo.fulfilled.type) {
+      //     formik.resetForm();
+      //     dispatch(getGroupInfo(groupInfo?.id));
+      //     onClose();
+      //   }
+      // } else {
+      //   const transformSbjIds = values.subjectIds.map((id) => parseInt(id));
+      //   const response = await dispatch(createGroup({ ...values, subjectIds: transformSbjIds }));
+      //   if (response.type === createGroup.fulfilled.type) {
+      //     dispatch(getGroupLists());
+      //     formik.resetForm();
+      //     onClose();
+      //   }
+      // }
+      // const data = { ...values, subjectIds: values.subjects.map(sub=> parseInt(sub.id)) }
+      const data = {
+        name: values.name,
+        description: values.description,
+        image: values.image,
+        subjectIds: values.subjects.map(sub => parseInt(sub.id)),
+      }
+      console.log("CreateGroup submit values", values);
+      console.log("CreateGroup submit data", data);
+      const response = await dispatch(createGroup(data));
+      if (response.type === createGroup.fulfilled.type) {
+        dispatch(getGroupLists());
+        dispatch(getUserInfo())
+        formik.resetForm();
+        handleCloseDialog();
+        toast.success("Create group successfully")
+      } else {
+        toast.error("Fail to create a new group")
+        dispatch(getUserInfo())
+      }
+    }
+  });
+  const { subjectLists } = useSelector(state => state.studyGroup)
 
-        <FormContainer
-          onSuccess={(data) => console.log(data)}
-        >
-          <Stack spacing={2} paddingTop={2}>
-            <TextFieldElement
-              name="group_name"
-              label="Group name"
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Introduction"
-              fullWidth
-              multiline
-              rows={4}
-              sx={{ marginTop: "15px" }}
-              value={groupIntro}
-              onChange={(e) => setGroupIntro(e.target.value)}
-            />
-            <Box sx={{ marginTop: "1rem" }}>
-              <Autocomplete
+  return (
+    <Box
+      component={'form'}
+      // onSubmit={(values)=>formik.handleSubmit(values)}
+      onSubmit={formik.handleSubmit}
+    // onSubmit={()=>alert('aaaa')}
+    // sx={{
+
+    //   display: 'flex',
+    //   flexDirection: 'row'
+    // }}
+    // mt={'24px'}
+    // rowGap={'32px'}
+    >
+      <Grid container marginLeft={10} paddingTop={10}>
+        <Grid item xs={6}>
+          {/* title */}
+          <Typography variant="h5" textAlign={"center"}>
+            Update group
+          </Typography>
+          {/* <FormContainer
+            onSuccess={(data) => console.log(data)}
+          > */}
+            <Stack spacing={2} paddingTop={2}>
+              <TextField
+                name="group_name"
+                label="Group name"
+                required
+                margin="dense"
+              />
+              <TextField
+                label="Introduction"
+                fullWidth
+                multiline
+                rows={4}
+                sx={{ marginTop: "15px" }}
+                value={groupIntro}
+                onChange={(e) => setGroupIntro(e.target.value)}
+              />
+              <Box sx={{ marginTop: "1rem" }}>
+                {/* <Autocomplete
                 sx={{ width: "100%" }}
                 multiple
-                options={subjects}
+                options={subjectLists}
                 value={subject}
                 onChange={(event, newValue) => {
                   setSubject(newValue);
@@ -85,65 +157,90 @@ export default function GroupSettings() {
                     {selected && <CheckIcon color="info" />}
                   </MenuItem>
                 )}
-              />
-            </Box>
-            <Button type="submit">Submit</Button>
-          </Stack>
-        </FormContainer>
-      </Grid>
+              /> */}
+                <Autocomplete
+                  multiple
+                  id="subjects"
+                  options={subjectLists}
+                  isOptionEqualToValue={
+                    (option, value) => option.id == value.id || option.name == value.name
+                  }
+                  getOptionLabel={(option) => option.name}
+                  value={formik.values.subjects}
+                  onChange={(event, selectedOptions) => {
+                    formik.setFieldValue('subjects', selectedOptions);
+                  }}
+                  onBlur={formik.handleBlur('subjects')}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Select group subjects"
+                      placeholder="Select subjects"
+                      error={formik.touched.subjects && Boolean(formik.errors.subjects)}
+                      helperText={formik.touched.subjects && formik.errors.subjects}
+                    />
+                  )}
+                />
+              </Box>
+              <Button type="submit">Submit</Button>
+            </Stack>
+          {/* </FormContainer> */}
+        </Grid>
 
-      <Grid item xs={5} paddingLeft={2}>
-        <Box
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            marginTop: "10px",
-          }}
-        >
-          <Typography variant="body1" marginBottom={1}>
-            Image group
-          </Typography>
-          <Avatar
-            style={{ width: "250px", height: "250px", borderRadius: 0 }}
-            src={
-              selectedFile ? URL.createObjectURL(selectedFile) : defaultAvatar
-            }
-          />
-          <Input
-            accept="image/*"
-            type="file"
-            id="avatar-upload"
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
-          <label htmlFor="avatar-upload">
-            <Button
-              variant="contained"
-              component="span"
-              style={{
-                marginTop: "16px",
-                padding: "2px 5px",
-                backgroundColor: "transparent",
-                color: "#000",
-                border: "1px solid #000",
-                fontSize: "12px",
-              }}
-            >
-              Choose File
-            </Button>
-          </label>
-          {selectedFile ? (
-            <Typography variant="body2" marginTop="10px">
-              Local avatar selected: {selectedFile.name}
+        <Grid item xs={5} paddingLeft={2}>
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <Typography variant="body1" marginBottom={1}>
+              Image group
             </Typography>
-          ) : (
-            <Typography variant="body2" marginTop="10px">
-              No local avatar is set. Use the upload field to add a local image.
-            </Typography>
-          )}
-        </Box>
-      </Grid>
-    </Grid>
+            <Avatar
+              style={{ width: "250px", height: "250px", borderRadius: 0 }}
+              src={
+                selectedFile ? URL.createObjectURL(selectedFile) : defaultAvatar
+              }
+            />
+            <Input
+              accept="image/*"
+              type="file"
+              id="avatar-upload"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+            <label htmlFor="avatar-upload">
+              <Button
+                variant="contained"
+                component="span"
+                style={{
+                  marginTop: "16px",
+                  padding: "2px 5px",
+                  backgroundColor: "transparent",
+                  color: "#000",
+                  border: "1px solid #000",
+                  fontSize: "12px",
+                }}
+              >
+                Choose File
+              </Button>
+            </label>
+            {selectedFile ? (
+              <Typography variant="body2" marginTop="10px">
+                Local avatar selected: {selectedFile.name}
+              </Typography>
+            ) : (
+              <Typography variant="body2" marginTop="10px">
+                No local avatar is set. Use the upload field to add a local image.
+              </Typography>
+            )}
+          </Box>
+        </Grid>
+      </Grid >
+    </Box>
   );
 }
