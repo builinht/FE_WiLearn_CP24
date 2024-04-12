@@ -1,49 +1,37 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText } from '@mui/material';
-import React from 'react'
+import React, { useState } from "react";
+import { Button } from "@mui/material";
+import { useDispatch, } from "react-redux";
+import { kickMember } from "../../app/reducer/studyGroupReducer";
 
-export default function DeleteMemButton() {
-  const [open, setOpen] = React.useState(false);
+export default function DeleteMemButton({ groupId, banAccId }) {
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleClick = async () => {
+    try {
+      setLoading(true);
+      await dispatch(kickMember({ groupId, banAccId }));
+    } catch (error) {
+      console.error("Error kicking member:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
   return (
-    <React.Fragment>
-      <Button
-        onClick={handleClickOpen}
-        variant="contained"
-        size="small"
-        sx={{ 
+    <Button
+      disabled={loading}
+      onClick={handleClick}
+      variant="contained"
+      size="small"
+      sx={{
+        backgroundColor: "#DD0000",
+        "&:hover": {
           backgroundColor: "#DD0000",
-          '&:hover': {
-            backgroundColor: "#DD0000"
-          },
-        }}
-        >
-        Kick           
-      </Button>
-      <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-            Are you sure you want to kick this member?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancle</Button>
-            <Button onClick={handleClose} autoFocus variant="contained" color="error">
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </React.Fragment>
-  )
+        },
+      }}
+    >
+      {loading ? 'Loading...' : 'Kick'}
+    </Button>
+  );
 }

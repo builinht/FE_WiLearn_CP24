@@ -26,6 +26,7 @@ import {
   API_UPLOAD_DISCUSSION,
   API_GET_DISCUSSION_BY_ID,
   API_GET_GROUP_NOT_JOIN,
+  DELETE_MEMBER,
 } from "../../../constants";
 // import mockStudyGroupService from "./mockStudyGroupService";
 import { toast } from "react-toastify";
@@ -398,6 +399,8 @@ export const addDiscussion = createAsyncThunk(
   }
 );
 
+
+
 export const getDiscussionById = createAsyncThunk(
   "studyGroup/getDiscussionById",
   async (id, { rejectWithValue }) => {
@@ -406,5 +409,19 @@ export const getDiscussionById = createAsyncThunk(
       .get(API_GET_DISCUSSION_BY_ID.replace("{discussionId}", id))
       .then((response) => response)
       .catch((error) => rejectWithValue(error.response.data));
+  }
+);
+
+export const kickMember = createAsyncThunk(
+  "studyGroup/kickMember",
+  async ({ groupId, banAccId }) => {
+    try {
+      const response = await axiosClient.delete(DELETE_MEMBER, { data: { groupId, banAccId } });
+      return response.data;
+    } catch (error) {
+      console.error("Error kicking member:", error);
+      toast.error("Failed to kick member.");
+      throw error;
+    }
   }
 );

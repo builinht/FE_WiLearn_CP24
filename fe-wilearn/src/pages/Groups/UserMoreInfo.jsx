@@ -1,12 +1,5 @@
-import { useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  DialogActions,
-} from "@mui/material";
+import React, { useState } from "react";
+import { Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from "@mui/material";
 import DeleteMemButton from "./DeleteMemButton";
 
 export default function UserMoreInfo(props) {
@@ -14,13 +7,9 @@ export default function UserMoreInfo(props) {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const randomNumber = Math.floor(
-    Math.random() * (999999999 - 111111111 + 1) + 111111111
-  );
-
   return (
     <>
-      <Button variant="outlined" sx={{ width: "100px" }} size="small" onClick={() => handleOpen()}>
+      <Button variant="outlined" sx={{ width: "100px" }} size="small" onClick={handleOpen}>
         More info
       </Button>
       <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
@@ -46,7 +35,7 @@ export default function UserMoreInfo(props) {
           />
           <TextField
             label="Phone"
-            defaultValue={"0" + randomNumber}
+            defaultValue={props.phone}
             fullWidth
             InputProps={{
               readOnly: true,
@@ -55,7 +44,7 @@ export default function UserMoreInfo(props) {
           />
         </DialogContent>
         <DialogActions style={{ padding: "16px" }}>
-          <DeleteMemButton/>
+          <DeleteMemButton groupId={props.groupId} banAccId={props.banAccId} />
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>

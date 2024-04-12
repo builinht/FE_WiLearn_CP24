@@ -25,6 +25,7 @@ import {
   addDiscussion,
   getDiscussionById,
   getGroupNotJoin,
+  kickMember,
 } from "./studyGroupActions";
 
 const initialState = {
@@ -45,6 +46,7 @@ const initialState = {
   discussionForm: null,
   discussionDetailInfo: [],
   groupNotJoin: [],
+  banAcc: null,
 };
 
 const studyGroupSlice = createSlice({
@@ -469,13 +471,27 @@ const studyGroupSlice = createSlice({
     //   state.error = payload;
     // })
 
+    //DELETE MEMBER
+    builder
+      .addCase(kickMember.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(kickMember.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(kickMember.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload;
+      });
 
+    //GET GROUP NOT JOIN
     builder.addCase(getGroupNotJoin.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
 
-    builder.addCase(getGroupNotJoin.fulfilled, (state, {payload}) => {
+    builder.addCase(getGroupNotJoin.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.groupNotJoin = payload;
     });
@@ -484,7 +500,7 @@ const studyGroupSlice = createSlice({
       state.loading = false;
       state.error = payload;
     });
-        //ADD DISCUSSION
+    //ADD DISCUSSION
     builder.addCase(addDiscussion.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -536,10 +552,10 @@ export {
   meetingNow,
   getMeetingList,
   getClassLists,
-
   addDiscussion,
   getDiscussionById,
   getGroupNotJoin,
+  kickMember,
 }; // export asynchronous actions
 
 export const { reset, clearSearchGroup } = studyGroupSlice.actions; // export synchronous actions
