@@ -28,8 +28,7 @@ const theme = createTheme({
   },
 });
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    {/* <ToastContainer> */}
+ 
     <ThemeProvider theme={theme}>
       <Provider store={store}>
         <GoogleOAuthProvider clientId="422799108764-meidfkt2ig8vk0280fojs5ifsvmhsp3k.apps.googleusercontent.com">
@@ -43,6 +42,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </GoogleOAuthProvider>
       </Provider>
     </ThemeProvider>
-    {/* // </ToastContainer> */}
-  </React.StrictMode>
 );
