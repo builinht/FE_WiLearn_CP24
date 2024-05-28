@@ -38,7 +38,8 @@ const WhiteBoard = (props) => {
   let canvasContext;// = document.getElementById("canvas")?.getContext("2d");
   let textContext;// = document.getElementById("text")?.getContext("2d");
   const [canvasX, setCanvasX] = useState();
-  const {drawings, setDrawings} = useState([1, 2,3]);
+  // const [drawings, setDrawings] = useState([]);
+  let drawings = [];
   const [canvasY, setCanvasY] = useState();
   
   const clearMousePositions = () => {
@@ -97,10 +98,10 @@ const WhiteBoard = (props) => {
     }else{
       // console.log("push")
       // drawings = drawings.push(drawing)
-      // drawings.push(drawing)
+      drawings.push(drawing)
       // drawings=[...drawings, drawing];
       console.log("setDrawings([...drawings, drawing])", drawings)
-      setDrawings([...drawings, drawing])
+      // setDrawings([...drawings, drawing])
       // console.log("push", drawings.length)
       // console.log("push", drawings)
     }
@@ -177,26 +178,26 @@ const WhiteBoard = (props) => {
         // }
       });
       
-      hubConnection.on("get-drawings", (drawings) => {
+      hubConnection.on("get-drawings", (existedDrawings) => {
         // alert("get-drawings")
         textRef.current.style.borderColor = "green"
         // canvasRef.current.style.borderColor = "green"
         toast.info("Connected to meeting white board")
-        console.log("get-drawings", drawings)
-        drawings.forEach((d) => {
+        console.log("get-drawings", existedDrawings)
+        existedDrawings.forEach((d) => {
           drawCanvas(d.prevX, d.prevY, d.currentX, d.currentY, d.color, d.size, d.username);
         });
 
         document.getElementById("text").addEventListener('mousemove', function(e) {
           // toast.info("text mouse move")
           // canvasMouseMove(e);
-          showNames(drawings, e)
+          showNames(e)
         });
-        document.getElementById("canvas").onmousemove = canvasMouseMove;
+        // document.getElementById("canvas").onmousemove = canvasMouseMove;
         document.getElementById("canvas").addEventListener('mousemove', function(e) {
           // toast.info("canvas mouse move")
           // canvasMouseMove(e);
-          showNames(drawings, e)
+          showNames(e)
         });
       });
       console.log('hubConnection', hubConnection);
@@ -220,6 +221,7 @@ const WhiteBoard = (props) => {
   };
   // meetHub = newConnection();
   useEffect(()=>{
+    console.log("init drawings", drawings)
     newConnection();
 
   }, [meetingId])
@@ -290,6 +292,8 @@ const WhiteBoard = (props) => {
 
     canvasContext = document.getElementById("canvas").getContext("2d");
     textContext = document.getElementById("text").getContext("2d");
+
+    console.log("init drawings", drawings)
     // setCanvasContext(canvas.getContext("2d"));
     // setTextContext(textVas.getContext("2d"));
     // canvasContext = canvas.getContext("2d");
@@ -330,7 +334,8 @@ const WhiteBoard = (props) => {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  const showNames = (drawings, e)=>{
+  // const showNames = (drawings, e)=>{
+  const showNames = (e)=>{
       // const goodDrawings = drawings.filter(d=>dist(d.x, d.y, mousex, mousey)<d.r/1.5).map(d=>({color: d.color, uname: d.uname}));
       console.log("drawings", drawings)
       console.log("drawings num", drawings.length)
@@ -357,7 +362,7 @@ const WhiteBoard = (props) => {
         let startX = mousex+10
 
         let backgroundLength = textContext.measureText(uniqueGoodDrawings.map(d=>d.uname).join(" ")).width;
-        textContext.fillStyle = "rgba(255,255,255,.5)";
+        textContext.fillStyle = "rgba(200,200,200,.5)";
         textContext.fillRect(mousex+5, mousey-10, backgroundLength+10, 25);
 
         uniqueGoodDrawings.forEach(d => {
